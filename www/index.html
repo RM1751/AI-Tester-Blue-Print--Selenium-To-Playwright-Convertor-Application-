@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B.L.A.S.T. Converter</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --border-color: #30363d;
+            --editor-bg: #161b22;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        h1 { margin-top: 0; color: var(--accent-color); }
+        .container {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+        }
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        textarea {
+            flex: 1;
+            background-color: var(--editor-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            resize: none;
+            outline: none;
+        }
+        textarea:focus { border-color: var(--accent-color); }
+        .controls {
+            margin: 10px 0;
+            display: flex;
+            justify-content: center;
+        }
+        button {
+            background-color: #238636;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover { background-color: #2ea043; }
+        button:disabled { background-color: #30363d; cursor: not-allowed; }
+        .footer { margin-top: 10px; font-size: 12px; color: #8b949e; }
+        #status { margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🚀 B.L.A.S.T. - Selenium to Playwright Converter</h1>
+    <div class="container">
+        <div class="panel">
+            <h3>Selenium (Java)</h3>
+            <textarea id="inputCode" placeholder="Paste your Java code here...">
+@Test
+public void testLogin() {
+    driver.get("http://example.com");
+    driver.findElement(By.id("user")).sendKeys("admin");
+}</textarea>
+        </div>
+        <div class="panel">
+            <h3>Playwright (JS/TS)</h3>
+            <textarea id="outputCode" readonly placeholder="Result will appear here..."></textarea>
+        </div>
+    </div>
+    <div class="controls">
+        <button id="convertBtn">Analyze & Convert</button>
+        <span id="status"></span>
+    </div>
+    <div class="footer" id="filePath"></div>
+
+    <script>
+        const convertBtn = document.getElementById('convertBtn');
+        const inputCode = document.getElementById('inputCode');
+        const outputCode = document.getElementById('outputCode');
+        const status = document.getElementById('status');
+        const filePath = document.getElementById('filePath');
+
+        convertBtn.addEventListener('click', async () => {
+            const code = inputCode.value;
+            if (!code.trim()) return;
+
+            convertBtn.disabled = true;
+            status.textContent = "Processing with Ollama (this may take a few seconds)...";
+            outputCode.value = "";
+
+            try {
+                const response = await fetch('/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ source_code: code })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    outputCode.value = data.converted_code;
+                    filePath.textContent = "Saved to: " + data.file_path;
+                    status.textContent = "Done!";
+                } else {
+                    outputCode.value = "Error: " + data.message;
+                    status.textContent = "Failed.";
+                }
+            } catch (e) {
+                console.error(e);
+                status.textContent = "Error connecting to server.";
+            } finally {
+                convertBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
