@@ -14,20 +14,20 @@ The system follows the **A.N.T.** (Architecture, Navigation, Tools) 3-layer arch
 
 ```mermaid
 graph TD
-    User[User / Developer] -->|1. Pastes Java Code| UI[Frontend UI\n(HTML/JS)]
-    UI -->|2. POST Request| Server[Backend Server\n(Python HTTP)]
+    User["User / Developer"] -->|1. Pastes Java Code| UI["Frontend UI<br/>(HTML/JS)"]
+    UI -->|2. POST Request| Server["Backend Server<br/>(Python HTTP)"]
     
     subgraph "Core Logic (Layer 3)"
-        Server -->|3. Route| Converter[Converter Engine]
-        Converter -->|4. Prompt| LLM_Client[LLM Client]
+        Server -->|3. Route| Converter["Converter Engine"]
+        Converter -->|4. Prompt| LLM_Client["LLM Client"]
     end
     
     subgraph "Intelligence (Local)"
-        LLM_Client -->|5. Query| Ollama[Ollama API\n(Port 11434)]
-        Ollama -->|6. Model Inference| Model[CodeLlama]
+        LLM_Client -->|5. Query| Ollama["Ollama API<br/>(Port 11434)"]
+        Ollama -->|6. Model Inference| Model["CodeLlama"]
     end
     
-    Converter -->|7. Save Result| FS[File System\n(./output)]
+    Converter -->|7. Save Result| FS["File System<br/>(./output)"]
     Converter -->|8. Return Code| Server
     Server -->|9. Display| UI
 ```
